@@ -1,3 +1,4 @@
+use trades;
 DELIMITER //
 CREATE OR REPLACE PROCEDURE iter_stocks(iterations INT) as
 DECLARE
