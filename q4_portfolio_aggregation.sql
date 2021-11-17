@@ -1,3 +1,4 @@
+use trades;
 WITH folio AS (
   SELECT id, stock_symbol, shares, share_price, trade_time
   FROM trade 
