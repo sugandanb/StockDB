@@ -1,3 +1,4 @@
+use trades;
 DELIMITER //
 CREATE OR REPLACE PROCEDURE seed_trades(num_trades INT) RETURNS INT AS
 DECLARE
