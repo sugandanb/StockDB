@@ -1,3 +1,4 @@
+use trades;
 LOAD DATA S3 '<your S3 Bucket>'
 CONFIG '{"region": "<your region"}'
 INTO TABLE company
