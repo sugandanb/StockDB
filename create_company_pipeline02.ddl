@@ -1,3 +1,4 @@
+use trades;
 CREATE PIPELINE company_pipeline
 AS LOAD DATA S3 's3://singlestore-test/companylist.csv'
 CONFIG '{\"region\":\"us-west-1\"}'
