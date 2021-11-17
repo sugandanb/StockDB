@@ -1,0 +1,5 @@
+LOAD DATA INFILE '<path_to_your_local_file>'
+INTO TABLE company
+FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES;

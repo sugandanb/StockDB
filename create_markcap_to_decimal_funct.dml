@@ -1,0 +1,16 @@
+DELIMITER //
+CREATE OR REPLACE FUNCTION marketcap_to_DECIMAL(s VARCHAR(15)) 
+  RETURNS DECIMAL(18,2) AS
+DECLARE 
+  m CHAR(1) = SUBSTR(s, LENGTH(s), 1); -- M or B
+  raw_v DECIMAL(18,2) = SUBSTR(s, 2, LENGTH(s) - 1);
+  v DECIMAL(18,2) = NULL;
+BEGIN
+  IF m = "B" THEN 
+    v = raw_v * 1000;
+  ELSE
+    v = raw_v;
+  END IF;
+  RETURN v;
+END //
+DELIMITER ;

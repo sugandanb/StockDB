@@ -1,0 +1,44 @@
+DELIMITER //
+CREATE OR REPLACE PROCEDURE iter_stocks(iterations INT) as
+DECLARE
+    tickers ARRAY(CHAR(5));
+    prices ARRAY(DECIMAL(18,4));
+    last_ids ARRAY(bigINT);
+    counts ARRAY(INT);
+    next_id bigINT = 1;
+    ticker CHAR(5);
+    price DECIMAL(18,4);
+    c INT;
+    rand DECIMAL(18,4);
+    tickers_q QUERY(t CHAR(5), p DECIMAL(18,4), lid BIGINT, c INT) = SELECT stock_symbol, share_price, MIN(id), COUNT(*) FROM trade GROUP BY stock_symbol;
+    q ARRAY(RECORD(t CHAR(5), p DECIMAL(18,4), lid bigINT, c INT));
+    q_count QUERY(c INT) = SELECT COUNT(*) FROM trade;
+    total_c INT;
+BEGIN
+    q = COLLECT(tickers_q);
+    tickers = CREATE_ARRAY(LENGTH(q));
+    prices = CREATE_ARRAY(LENGTH(q));
+    last_ids = CREATE_ARRAY(LENGTH(q));
+    counts = CREATE_ARRAY(LENGTH(q));
+    total_c = SCALAR(q_count);
+    FOR r IN 0..LENGTH(q)-1 LOOP
+        tickers[r] = q[r].t;
+        prices[r] = q[r].p;
+        last_ids[r] = q[r].lid;
+        counts[r] = q[r].c;
+    END LOOP;
+    FOR j IN 0..(iterations-1) LOOP
+        FOR i IN 0..LENGTH(tickers)-1 LOOP
+            ticker = tickers[i];
+            price = prices[i];
+            next_id = last_ids[i];
+            c = counts[i];
+            rand = POW(-1, FLOOR(RAND()*2)) * RAND();
+            INSERT INTO trade 
+            SELECT id + total_c, stock_symbol, shares, share_price + rand, trade_time FROM trade WHERE stock_symbol = ticker AND id >= next_id;
+            prices[i] = price + rand;
+            last_ids[i] = next_id + total_c;
+        END LOOP;
+    END LOOP;
+END //
+DELIMITER ;

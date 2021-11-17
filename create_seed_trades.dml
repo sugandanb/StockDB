@@ -1,0 +1,38 @@
+DELIMITER //
+CREATE OR REPLACE PROCEDURE seed_trades(num_trades INT) RETURNS INT AS
+DECLARE
+  ranked_companies ARRAY(RECORD(symbol CHAR(5), _rank INT)); 
+DECLARE
+  q QUERY(symbol CHAR(5), _rank INT) =
+    SELECT symbol, rank() OVER (ORDER BY marketcap_to_DECIMAL(market_cap)) AS _rank
+    FROM company
+    WHERE LENGTH(symbol) < 5
+    ORDER BY _rank DESC LIMIT 200;
+  i INT = 0;
+  rank_num INT;
+  next_id INT = 1;
+  sym CHAR(5);
+  price_base DECIMAL(18,4);
+  current_prices ARRAY(INT);
+  l ARRAY(RECORD(symbol CHAR(5), _rank INT));
+BEGIN
+  l = collect(q);
+  FOR r IN l LOOP
+    i += 1;
+    rank_num = r._rank;
+    sym = r.symbol;
+    price_base = FLOOR(rand() * 50) + 50;
+    FOR j IN 1..((rank_num / 10) + RAND() * 10) LOOP
+      INSERT trade VALUES(
+        next_id, 
+        sym, 
+        FLOOR(1 + RAND() * 10) * 100, -- shares
+        price_base,      -- share_price
+        DATE_ADD(NOW(), INTERVAL RAND() * 6 HOUR)); -- random time during trading day, roughly
+      next_id += 1;
+      IF next_id > num_trades THEN RETURN(next_id); END IF;
+    END LOOP;
+  END LOOP;
+  RETURN(next_id);
+END //
+DELIMITER ;

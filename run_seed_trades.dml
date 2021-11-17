@@ -1,0 +1,2 @@
+USE trades;
+CALL seed_trades(100000);
