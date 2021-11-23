@@ -1,0 +1,2 @@
+use trades;
+START PIPELINE company_pipeline;
